@@ -76,12 +76,34 @@ def get_all_time_interval(start_date, end_date):
         sid2date2data[sid][date] = Instance(sid, date, volume, cost, open_p, high, low, close_p, label, ntrans)
     return sid2date2data
 
+def strategy_volume(Ins, volumes, closes, maxlen):
+    this_volume = Ins.volume
+    this_close = Ins.close
+    if len(volumes) == maxlen:
+        avg_volume = np.mean(volumes)
+        avg_close = np.mean(closes)
+        if this_volume > avg_volume * 1.5 and this_close > avg_close * 1.03:
+            print('sid {} date {} this_volume {} avg_volume {} this_close {} avg_close {} {}'.format(Ins.id, Ins.date, this_volume, avg_volume, this_close, avg_close, Ins))
+
+def strategy_boolean_tunnel(Ins, volumes, closes, maxlen):
+    alpha = 2.1
+    this_volume = Ins.volume
+    this_close = Ins.close
+    if len(volumes) == maxlen:
+        avg_volume = np.mean(volumes)
+        avg_close = np.mean(closes)
+        std_volume = np.std(volumes)
+        std_close = np.std(closes)
+        bound = avg_close + alpha * std_close
+        if this_close > bound:
+            print('sid {} date {} this_volume {} avg_volume {} this_close {} bound_close {} avg_close {} std_close {} {}'.format(Ins.id, Ins.date, this_volume, avg_volume, this_close, bound, avg_close, std_close, Ins))
+
+
 def main():
     start_date = '20180621'
     end_date = '20180806'
-    sid = '2454'
 
-    # r = get_one_time_interval(sid, start_date, end_date)
+    # r = get_one_time_interval('2330', start_date, end_date)
     sid2date2data = get_all_time_interval(start_date, end_date)
 
     for sid in sorted(sid2date2data.keys()):
@@ -90,15 +112,10 @@ def main():
         closes = deque(maxlen=maxlen)
         for date in sorted(sid2date2data[sid].keys()):
             Ins = sid2date2data[sid][date]
-            this_volume = Ins.volume
-            this_close = Ins.close
-            if len(volumes) == maxlen:
-                avg_volume = np.mean(volumes)
-                avg_close = np.mean(closes)
-                if this_volume > avg_volume * 1.5 and this_close > avg_close * 1.03:
-                    print('sid {} date {} this_volume {} avg_volume {} this_close {} avg_close {} Instance {}'.format(sid, date, this_volume, avg_volume, this_close, avg_close, Ins))
-            volumes.append(this_volume)
-            closes.append(this_close)
+            #strategy_volume(Ins, volumes, closes, maxlen)
+            strategy_boolean_tunnel(Ins, volumes, closes, maxlen)
+            volumes.append(Ins.volume)
+            closes.append(Ins.close)
     return
 
 if __name__ == '__main__':
