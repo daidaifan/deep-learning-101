@@ -18,7 +18,7 @@ def dump_updated_sid(codes):
     for sid in codes:
         print('code {}'.format(sid))
         stock = Stock(sid)
-        stock.fetch_from(2017, 5)
+        stock.fetch_from(2018, 7)
         # Data(date=datetime.datetime(2017, 5, 2, 0, 0), capacity=45851963, turnover=9053856108, open=198.5, high=199.0, low=195.5, close=196.5, change=2.0, transaction=15718)
 
         sid2date2data = {}
